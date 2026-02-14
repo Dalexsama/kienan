@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday Kiến An</title>
+    <style>
+        /* --- GIỮ NGUYÊN CÁC STYLE CŨ --- */
+        body { margin: 0; padding: 0; overflow: hidden; font-family: 'Verdana', sans-serif; background: #000; color: white; }
+        .scene { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; display: none; flex-direction: column; align-items: center; justify-content: center; transition: opacity 1s; }
+        .active { display: flex; }
+        #scene1 { background: #2c3e50; }
+        .character-img { width: 300px; height: auto; cursor: pointer; animation: bounce 2s infinite; }
+        .dialogue-box { background: rgba(255, 255, 255, 0.95); color: #333; padding: 25px; border-radius: 20px; text-align: center; margin-top: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); width: 400px; max-width: 90%; }
+        .btn { background: #e74c3c; color: white; border: none; padding: 12px 30px; font-size: 18px; border-radius: 50px; cursor: pointer; margin-top: 15px; font-weight: bold; transition: 0.3s; }
+        .btn:hover { transform: scale(1.1); background: #c0392b; }
+        #scene3 { background: url('nhahang.jpg') no-repeat center center; background-size: cover; position: relative; }
+        .painting-zone { position: absolute; cursor: pointer; z-index: 10; }
+        #paint1 { top: 20%; left: 5%; width: 25vw; height: 35vw; }
+        #paint2 { top: 20%; left: 37.5%; width: 25vw; height: 35vw; }
+        #paint3 { top: 20%; left: 70%; width: 25vw; height: 35vw; }
+        
+        .special-modal-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 200; display: none;
+            flex-direction: column; align-items: center; justify-content: center;
+            transition: background 2s;
+        }
+
+        /* Thanh cuộn cho nội dung dài */
+        .special-content { 
+            text-align: center; max-width: 800px; padding: 20px; 
+            animation: fadeIn 1s; 
+            display: flex; flex-direction: column; align-items: center;
+            max-height: 90vh; 
+            overflow-y: auto; 
+        }
+        .special-content::-webkit-scrollbar { width: 5px; }
+        .special-content::-webkit-scrollbar-thumb { background: #888; border-radius: 5px; }
+
+        /* Ảnh ký ức */
+        .memory-img-single { width: 250px; border-radius: 15px; border: 4px solid white; box-shadow: 0 0 20px rgba(255,255,255,0.5); margin-bottom: 20px; display: none; }
+        
+        /* Gallery 4 ảnh */
+        .memory-gallery { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; width: 100%; flex-wrap: wrap; }
+        .gallery-img { width: 22%; max-width: 150px; height: auto; border-radius: 10px; border: 2px solid white; box-shadow: 0 0 15px rgba(255,255,255,0.3); display: none; animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        
+        /* Icon và Text */
+        .sad-mode { filter: grayscale(100%); background: rgba(50, 50, 50, 0.95) !important; }
+        #big-sad-icon { font-size: 100px; margin-bottom: 20px; display: none; animation: fadeIn 1s; }
+        #cool-icon { font-size: 80px; margin-top: 10px; display: none; animation: popIn 1s infinite alternate; } 
+        
+        .typing-text { font-size: 1.3em; line-height: 1.6; min-height: 60px; margin-bottom: 20px; color: #fff; text-shadow: 1px 1px 5px black; white-space: pre-wrap; }
+        
+        /* Nút bấm lựa chọn */
+        .choice-container { display: none; gap: 20px; justify-content: center; }
+        .choice-btn { padding: 15px 25px; border: none; border-radius: 10px; font-size: 1.1em; cursor: pointer; transition: 0.3s; }
+        .btn-yes { background: #2ecc71; color: white; }
+        .btn-no { background: #95a5a6; color: white; }
+        .choice-btn:hover { transform: scale(1.1); }
+        
+        /* Nút chuyển tiếp */
+        .next-btn { 
+            display: none; 
+            margin-top: 20px; 
+            margin-bottom: 20px; 
+            background: linear-gradient(45deg, #f1c40f, #e67e22); color: white; padding: 15px 30px; border-radius: 50px; font-weight: bold; border: 2px solid white; animation: pulse 2s infinite; cursor: pointer; 
+        }
+        
+        /* --- STYLE CHO MÀN FINAL (BÁNH KEM) --- */
+        #final-party-container {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            width: 100%; 
+            margin-bottom: 30px; 
+        }
+        #cake-img { width: 300px; animation: bounce 3s infinite; margin-bottom: 20px; filter: drop-shadow(0 0 20px gold); }
+        .final-wish { 
+            font-size: 1.4em; color: #f1c40f; text-shadow: 2px 2px 4px #000; 
+            font-weight: bold; text-align: center; line-height: 1.8;
+            background: rgba(0,0,0,0.8); 
+            padding: 20px; border-radius: 20px;
+            border: 2px solid gold;
+        }
+
+        /* Nút đóng: mặc định sẽ ẩn trong JS và hiện sau */
+        .close-special-btn { 
+            padding: 10px 25px; 
+            background: #e74c3c; 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-size: 1.1em; 
+            margin-top: 20px; 
+            margin-bottom: 50px; 
+            display: none; /* Mặc định ẩn trong CSS luôn cho chắc */
+        }
+        
+        .cake-container { position: absolute; bottom: 10%; text-align: center; width: 100%; z-index: 5; pointer-events: none; }
+        .message-box { background: rgba(0, 0, 0, 0.6); padding: 20px; border-radius: 15px; display: inline-block; max-width: 80%; }
+        .message-text { font-size: 1.5em; color: #f1c40f; text-shadow: 1px 1px 2px #000; font-weight: bold; margin: 0; }
+        
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        .confetti { position: absolute; width: 10px; height: 10px; background: #f00; animation: fall linear forwards; pointer-events: none; z-index: 9999; }
+        @keyframes fall { to { transform: translateY(100vh) rotate(720deg); } }
+    </style>
+</head>
+<body>
+    <div id="scene1" class="scene active">
+        <img src="boy.jpg" class="character-img" alt="Boy">
+        <div class="dialogue-box">
+            <h2>Hế lô Kiến An! 👋</h2>
+            <p>Tớ có một điều bất ngờ siêu đặc biệt dành cho cậu đây.</p>
+            <button class="btn" onclick="startJourney()">Đi theo tớ nào ❤️</button>
+        </div>
+    </div>
+
+    <div id="scene3" class="scene">
+        <div id="paint1" class="painting-zone" onclick="openSpecialStory1()"></div>
+        <div id="paint2" class="painting-zone" onclick="openSpecialStory2()"></div>
+        <div id="paint3" class="painting-zone" onclick="openSpecialStory3()"></div>
+        
+        <div class="cake-container">
+            <div class="message-box">
+                <p class="message-text">
+                    Cậu hãy ngồi vào bàn và nhìn thấy 3 bức tranh không?<br>
+                    Cậu thử nhấn vào chúng coi có gì bất ngờ hông nè! 👇
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div id="special-modal-1" class="special-modal-container">
+        <div class="special-content">
+            <img src="an.jpg" id="an-img" class="memory-img-single" alt="Memory 1">
+            <div id="big-sad-icon">😔</div>
+            <div id="typing-area-1" class="typing-text"></div>
+            <div id="choices" class="choice-container">
+                <button class="choice-btn btn-yes" onclick="chooseOption('yes')">Tất nhiên là vẫn còn rồi 🥰</button>
+                <button class="choice-btn btn-no" onclick="chooseOption('no')">Hình như đã quên mất rồi 😔</button>
+            </div>
+            <button id="next-paint-btn-1" class="next-btn" onclick="goToPaint2From1()">
+                Bạn có muốn xem tranh thứ 2 không? 👉
+            </button>
+            <button id="close-btn-1" class="close-special-btn" onclick="closeSpecialStory1()">Đóng lại</button>
+        </div>
+    </div>
+
+    <div id="special-modal-2" class="special-modal-container">
+        <div class="special-content">
+            <div class="memory-gallery">
+                <img src="you.jpg" id="gallery-img-1" class="gallery-img" alt="Memory you">
+                <img src="y1.jpg" id="gallery-img-2" class="gallery-img" alt="Memory y1">
+                <img src="y2.jpg" id="gallery-img-3" class="gallery-img" alt="Memory y2">
+                <img src="y3.jpg" id="gallery-img-4" class="gallery-img" alt="Memory y3">
+            </div>
+            
+            <div id="typing-area-2" class="typing-text" style="font-size: 1.1em;"></div>
+            
+            <div id="cool-icon">😎</div>
+
+            <button id="next-paint-btn-2" class="next-btn" onclick="goToPaint3From2()">
+                Giờ xem tranh thứ 3 nè 👉
+            </button>
+            
+            <button id="close-btn-2" class="close-special-btn" onclick="closeSpecialStory2()">Đóng lại</button>
+        </div>
+    </div>
+
+    <div id="special-modal-3" class="special-modal-container">
+        <div class="special-content">
+            
+            <div id="boy-talk-area">
+                <img src="boy.jpg" class="memory-img-single" style="display:inline-block; border-color: #f1c40f;" alt="Boy talking">
+                <div id="typing-area-3" class="typing-text"></div>
+                
+                <button id="open-gift-btn" class="next-btn" onclick="triggerFinalSurprise()">
+                    Giờ xem tranh thứ 3 nè (Bất ngờ) 🎁
+                </button>
+            </div>
+
+            <div id="final-party-container">
+                <h1 style="color: #f1c40f; text-shadow: 0 0 10px red; font-size: 3em; margin:0;">HAPPY BIRTHDAY!!!!</h1>
+                <div style="font-size: 50px;">🎆 🎂 💐</div>
+                
+                <img src="banh.png" id="cake-img" alt="Birthday Cake">
+                
+                <div id="final-wish-area" class="final-wish"></div>
+            </div>
+
+            <button id="close-btn-3" class="close-special-btn" onclick="closeSpecialStory3()">Đóng lại</button>
+        </div>
+    </div>
+
+    <audio id="bgMusic" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+
+    <audio id="hpbdMusic">
+        <source src="hpbd.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // --- KHỞI ĐẦU ---
+        function startJourney() {
+            document.getElementById('scene1').classList.remove('active');
+            document.getElementById('scene3').classList.add('active');
+            var audio = document.getElementById("bgMusic");
+            audio.play().catch(e => console.log("Audio blocked"));
+            createConfettiLoop(5000);
+        }
+
+        // --- TRANH 1: NGƯỜI CŨ ---
+        function openSpecialStory1() {
+            resetSpecialModal1();
+            document.getElementById('special-modal-1').style.display = 'flex';
+            setTimeout(() => { document.getElementById('an-img').style.display = 'inline-block'; }, 500);
+            setTimeout(() => {
+                typeText("Cậu thấy ai quen quen hong nè?<br>Nụ cười đó giờ cậu có còn ở trên môi ko nè? 😊", "typing-area-1");
+            }, 1500);
+            setTimeout(() => { document.getElementById('choices').style.display = 'flex'; }, 4000);
+        }
+        function resetSpecialModal1() {
+            document.getElementById('an-img').style.display = 'none';
+            document.getElementById('big-sad-icon').style.display = 'none';
+            document.getElementById('typing-area-1').innerHTML = '';
+            document.getElementById('choices').style.display = 'none';
+            document.getElementById('next-paint-btn-1').style.display = 'none';
+            document.getElementById('close-btn-1').style.display = 'none'; // Ẩn nút đóng
+            document.getElementById('special-modal-1').classList.remove('sad-mode');
+        }
+        function closeSpecialStory1() {
+            document.getElementById('special-modal-1').style.display = 'none';
+        }
+        function chooseOption(choice) {
+            document.getElementById('choices').style.display = 'none';
+            if (choice === 'yes') {
+                typeText("Chúc mừng nha! 🎉<br>Cậu vẫn còn giữ được nụ cười đó trông cậu thật vui vẻ luôn đó.<br>Hãy luôn giữ nụ cười đó trên môi hoài luôn nha!<br>CHÚC MỪNG CẬU!", "typing-area-1");
+                createConfettiLoop(5000);
+            } else {
+                document.getElementById('special-modal-1').classList.add('sad-mode');
+                document.getElementById('an-img').style.display = 'none';
+                document.getElementById('big-sad-icon').style.display = 'block';
+                typeText("Không sao đâu, cậu vẫn còn ở đây là tốt rồi nè...<br>Cuộc sống hiện giờ chắc cậu vất vả lắm nhỉ?<br>Nhưng ko sao đâu, tớ tin là sau cơn mưa trời sẽ sáng mà.<br>Cậu chỉ cần cố gắng thêm chút nữa thôi, rồi một ngày nào đó nụ cười đó sẽ xuất hiện lại tiếp thôi nè! 😔", "typing-area-1");
+            }
+            // Hiện cả 2 nút cùng lúc sau 10s
+            setTimeout(() => { 
+                document.getElementById('next-paint-btn-1').style.display = 'block'; 
+                document.getElementById('close-btn-1').style.display = 'block'; 
+            }, 10000); 
+        }
+        function goToPaint2From1() {
+            document.getElementById('special-modal-1').style.display = 'none';
+            setTimeout(() => { openSpecialStory2(); }, 500);
+        }
+
+        // --- TRANH 2: HÀO HÙNG ---
+        function openSpecialStory2() {
+            document.getElementById('gallery-img-1').style.display = 'none';
+            document.getElementById('gallery-img-2').style.display = 'none';
+            document.getElementById('gallery-img-3').style.display = 'none';
+            document.getElementById('gallery-img-4').style.display = 'none';
+            document.getElementById('typing-area-2').innerHTML = '';
+            document.getElementById('cool-icon').style.display = 'none';
+            document.getElementById('next-paint-btn-2').style.display = 'none';
+            document.getElementById('close-btn-2').style.display = 'none'; // Ẩn nút đóng ban đầu
+            
+            document.getElementById('special-modal-2').style.display = 'flex';
+            
+            setTimeout(() => { document.getElementById('gallery-img-1').style.display = 'block'; }, 500);
+            setTimeout(() => { document.getElementById('gallery-img-2').style.display = 'block'; }, 1000);
+            setTimeout(() => { document.getElementById('gallery-img-3').style.display = 'block'; }, 1500);
+            setTimeout(() => { document.getElementById('gallery-img-4').style.display = 'block'; }, 2000);
+
+            setTimeout(() => {
+                const content = `Cậu nhớ năm đó chúng ta là người như thế nào chứ nè?
+
+Chúng ta đều là thiếu niên, thua ko buồn, thắng ko khiêm nhường. Trong tay có viết, trong lòng có chí. Gặp biển lớn, lòng ta phóng khoáng. Gặp hoa nở cũng không giấu niềm vui. Phía trước hiểm nguy chẳng biết sợ. Bạn bè ở bên nâng chén hát vang. Muốn cười thì to tiếng cười vang. Muốn chửi thì chửi cho đã miệng.
+
+Đạo lý nhân gian muôn quyển sách. Chỉ mong được tùy ý theo lòng này.`;
+                typeText(content, "typing-area-2");
+            }, 3000);
+
+            // Hiện tất cả nút cùng lúc khi chạy chữ xong (18s)
+            setTimeout(() => {
+                document.getElementById('cool-icon').style.display = 'block';
+                document.getElementById('next-paint-btn-2').style.display = 'block';
+                document.getElementById('close-btn-2').style.display = 'block'; // Giờ mới hiện nút đóng
+            }, 18000); 
+        }
+        function closeSpecialStory2() {
+            document.getElementById('special-modal-2').style.display = 'none';
+        }
+
+        function goToPaint3From2() {
+            document.getElementById('special-modal-2').style.display = 'none';
+            setTimeout(() => { openSpecialStory3(); }, 500);
+        }
+
+        // --- TRANH 3: ĐỈNH CAO & BÁNH KEM ---
+        function openSpecialStory3() {
+            document.getElementById('special-modal-3').style.display = 'flex';
+            
+            document.getElementById('boy-talk-area').style.display = 'block';
+            document.getElementById('final-party-container').style.display = 'none';
+            document.getElementById('open-gift-btn').style.display = 'none';
+            document.getElementById('close-btn-3').style.display = 'none'; // Ẩn nút đóng
+            document.getElementById('typing-area-3').innerHTML = '';
+
+            setTimeout(() => {
+                const content = `Cậu thấy ấy năm đó chúng ta đều như vậy đó nên bây giờ chúng ta đều phải tiếp tục tiến lên vươn lên đỉnh cao của cuộc đời nha.
+
+Lần sau gặp lại là ở đỉnh cao vinh quang nha cùng với khí phách thiếu niên năm xưa ko hề suy giảm mà càng lớn mạnh thêm nha nè.
+
+Và sau đây là điều đặc biệt cho cậu nè. 👇`;
+                typeText(content, "typing-area-3");
+            }, 1000);
+
+            // HIỆN NÚT QUÀ & ĐÓNG SAU 5 GIÂY
+            setTimeout(() => {
+                document.getElementById('open-gift-btn').style.display = 'block';
+                document.getElementById('close-btn-3').style.display = 'block';
+            }, 5000);
+        }
+
+        function triggerFinalSurprise() {
+            document.getElementById('boy-talk-area').style.display = 'none';
+            document.getElementById('final-party-container').style.display = 'flex';
+            // Nút đóng vẫn giữ nguyên ở đó để người dùng có thể thoát
+
+            // 1. TẮT NHẠC NỀN CŨ
+            var bgAudio = document.getElementById("bgMusic");
+            bgAudio.pause();
+            
+            // 2. CHƠI NHẠC HPBD MỚI
+            var hpbdAudio = document.getElementById("hpbdMusic");
+            hpbdAudio.currentTime = 0;
+            hpbdAudio.play().catch(e => console.log("Cần file hpbd.mp3 để phát nhạc"));
+
+            createConfettiLoop(20000); 
+
+            const wish = `Chúc mừng sinh nhật Kiến An 🎆🎂💐
+
+Chúc ông vạn sự như ý, hàng giờ hạnh phúc, hàng ngàn yêu thương.
+Hàng giây tiền vào túi đều đều, và luôn vui vẻ nha ông.
+
+HAPPY BIRTHDAY!!!!`;
+            typeText(wish, "final-wish-area");
+        }
+
+        function closeSpecialStory3() {
+            document.getElementById('special-modal-3').style.display = 'none';
+            // Bật lại nhạc nền nếu muốn
+            document.getElementById("bgMusic").play();
+            document.getElementById("hpbdMusic").pause();
+        }
+
+        // --- TIỆN ÍCH ---
+        function typeText(text, elementId) {
+            const el = document.getElementById(elementId);
+            el.style.opacity = 1;
+            el.innerHTML = text.replace(/\n/g, "<br>"); 
+            el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 1000, fill: 'forwards' });
+        }
+
+        function createConfettiLoop(duration) {
+            let interval = setInterval(() => {
+                const colors = ['#f1c40f', '#e74c3c', '#3498db', '#2ecc71', '#9b59b6', '#ffffff', 'gold'];
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = Math.random() * 15 + 5 + 'px';
+                confetti.style.height = Math.random() * 15 + 5 + 'px';
+                confetti.style.animationDuration = (Math.random() * 2 + 1) + 's';
+                document.body.appendChild(confetti);
+                setTimeout(() => { confetti.remove() }, 3000);
+            }, 50);
+
+            setTimeout(() => { clearInterval(interval); }, duration);
+        }
+    </script>
+</body>
+</html>

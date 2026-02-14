@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday Kiến An</title>
+    <style>
+        body { margin: 0; padding: 0; overflow: hidden; font-family: 'Arial', sans-serif; background: #000; color: white; }
+        
+        .scene { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; display: none; flex-direction: column; align-items: center; justify-content: center; transition: opacity 1s; }
+        .active { display: flex; }
+
+        /* Scene 1: Cậu bé Anime */
+        #scene1 { background: #2c3e50; }
+        .character-img { width: 300px; height: auto; cursor: pointer; animation: bounce 2s infinite; }
+        .dialogue-box { background: rgba(255, 255, 255, 0.95); color: #333; padding: 25px; border-radius: 20px; text-align: center; margin-top: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); width: 400px; max-width: 90%; }
+        .btn { background: #e74c3c; color: white; border: none; padding: 12px 30px; font-size: 18px; border-radius: 50px; cursor: pointer; margin-top: 15px; font-weight: bold; transition: 0.3s; }
+        .btn:hover { transform: scale(1.1); background: #c0392b; }
+
+        /* Scene 3: Nhà hàng */
+        #scene3 { 
+            background: url('nhahang.jpg') no-repeat center center; 
+            background-size: cover; 
+            position: relative; 
+        }
+
+        /* --- CẬP NHẬT VÙNG BẤM HÌNH CHỮ NHẬT --- */
+        .painting-zone {
+            position: absolute;
+            /* Đã bỏ border-radius để thành hình vuông/chữ nhật */
+            cursor: pointer; 
+            z-index: 10;
+            
+            /* MẸO: Nếu cậu muốn nhìn thấy vùng bấm để chỉnh cho dễ, 
+               hãy xóa dấu gạch chéo ở đầu dòng dưới đây đi: */
+            /* border: 2px solid red; background: rgba(255,0,0,0.2); */
+        }
+
+        /* Căn chỉnh lại cho khớp với 3 bức tranh dọc (Waffle, Cherry...) */
+        /* Top: Cách lề trên, Left: Cách lề trái, Width/Height: Độ rộng/cao */
+        
+        /* Tranh 1 (Bên Trái) */
+        #paint1 { top: 20%; left: 5%; width: 25vw; height: 35vw; }
+        
+        /* Tranh 2 (Ở Giữa) */
+        #paint2 { top: 20%; left: 37.5%; width: 25vw; height: 35vw; }
+        
+        /* Tranh 3 (Bên Phải) */
+        #paint3 { top: 20%; left: 70%; width: 25vw; height: 35vw; }
+
+
+        /* Hộp truyện (Popup) */
+        .story-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255, 255, 255, 0.95); color: #2c3e50; padding: 30px; border-radius: 15px; width: 80%; max-width: 500px; display: none; z-index: 100; text-align: center; box-shadow: 0 0 50px rgba(0,0,0,0.8); animation: popIn 0.5s; }
+        .close-btn { background: #333; color: white; padding: 5px 15px; border-radius: 5px; cursor: pointer; margin-top: 20px; display: inline-block; }
+        #overlay-dim { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 99; display: none; }
+
+        /* Hộp tin nhắn */
+        .cake-container { position: absolute; bottom: 10%; text-align: center; width: 100%; z-index: 5; pointer-events: none; }
+        .message-box { 
+            background: rgba(0, 0, 0, 0.6); 
+            padding: 20px;
+            border-radius: 15px;
+            display: inline-block;
+            max-width: 80%;
+            animation: slideUp 2s;
+        }
+        .message-text { 
+            font-size: 1.5em; color: #f1c40f; text-shadow: 1px 1px 2px #000; font-weight: bold; line-height: 1.5; margin: 0; font-family: 'Verdana', sans-serif; 
+        }
+
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes slideUp { from { transform: translateY(100vh); } to { transform: translateY(0); } }
+        @keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .confetti { position: absolute; width: 10px; height: 10px; background: #f00; animation: fall linear forwards; pointer-events: none; }
+        @keyframes fall { to { transform: translateY(100vh) rotate(720deg); } }
+
+    </style>
+</head>
+<body>
+
+    <div id="scene1" class="scene active">
+        <img src="boy.jpg" class="character-img" alt="Boy">
+        <div class="dialogue-box">
+            <h2>Hế lô Kiến An! 👋</h2>
+            <p>Tớ có một điều bất ngờ siêu đặc biệt dành cho cậu đây.</p>
+            <button class="btn" onclick="startJourney()">Đi theo tớ nào ❤️</button>
+        </div>
+    </div>
+
+    <div id="scene3" class="scene">
+        
+        <div id="paint1" class="painting-zone" onclick="showStory('Câu Chuyện 1', 'Nội dung câu chuyện bức tranh đầu tiên...')"></div>
+        <div id="paint2" class="painting-zone" onclick="showStory('Câu Chuyện 2', 'Nội dung câu chuyện bức tranh ở giữa...')"></div>
+        <div id="paint3" class="painting-zone" onclick="showStory('Câu Chuyện 3', 'Nội dung câu chuyện bức tranh cuối cùng...')"></div>
+
+        <div class="cake-container">
+            <div class="message-box">
+                <p class="message-text">
+                    Cậu hãy ngồi vào bàn và nhìn thấy 3 bức tranh không?<br>
+                    Cậu thử nhấn vào chúng coi có gì bất ngờ hông nè! 👇
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div id="overlay-dim" onclick="closeStory()"></div>
+    <div id="story-modal" class="story-modal">
+        <h2 id="story-title" style="color: #e74c3c;">Tiêu đề</h2>
+        <p id="story-content" style="font-size: 1.1em; line-height: 1.6;">Nội dung...</p>
+        <div class="close-btn" onclick="closeStory()">Đóng lại</div>
+    </div>
+
+    <audio id="bgMusic" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        function startJourney() {
+            document.getElementById('scene1').classList.remove('active');
+            document.getElementById('scene3').classList.add('active');
+            
+            var audio = document.getElementById("bgMusic");
+            audio.play().catch(e => console.log("Audio auto-play blocked"));
+            
+            let confettiInterval = setInterval(() => { createConfetti(); }, 100);
+            setTimeout(() => { clearInterval(confettiInterval); }, 5000);
+        }
+
+        function showStory(title, content) {
+            document.getElementById('story-title').innerText = title;
+            document.getElementById('story-content').innerText = content;
+            document.getElementById('story-modal').style.display = 'block';
+            document.getElementById('overlay-dim').style.display = 'block';
+        }
+
+        function closeStory() {
+            document.getElementById('story-modal').style.display = 'none';
+            document.getElementById('overlay-dim').style.display = 'none';
+        }
+
+        function createConfetti() {
+            const colors = ['#f1c40f', '#e74c3c', '#3498db', '#2ecc71', '#9b59b6'];
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti');
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            document.body.appendChild(confetti);
+            setTimeout(() => { confetti.remove() }, 5000);
+        }
+    </script>
+</body>
+</html>
